@@ -1,18 +1,18 @@
-#ifndef OTHELLO_AI_H
-#define OTHELLO_AI_H
+#ifndef OTHELLO_MINMAX_H
+#define OTHELLO_MINMAX_H
 
 
 #include "Board.h"
 
-#define MAX_DEPTH 8
+#define MAX_DEPTH 10
 
-class AI {
+class MinMax {
 private:
     int alpha, beta;
     Color aiColor;
 
 public:
-    explicit AI(Color color);
+    explicit MinMax(Color color);
 
     pair<int, int> minmax(Board initBoard);
 
@@ -20,4 +20,4 @@ public:
 };
 
 
-#endif //OTHELLO_AI_H
+#endif //OTHELLO_MINMAX_H

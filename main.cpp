@@ -1,5 +1,5 @@
 #include "Board.h"
-#include "AI.h"
+#include "MinMax.h"
 
 using namespace std;
 
@@ -18,8 +18,8 @@ int main() {
         }
     }
     Board board(playerColor);
-//    AI ai0 = AI(playerColor);
-    AI ai1 = AI(enemyColor);
+//    MinMax ai0 = MinMax(playerColor);
+    MinMax ai1 = MinMax(enemyColor);
     vector<std::tuple<int, int, vector<int>>> a;
     while (!board.isOver()) {
         board.printBoard();
@@ -39,6 +39,7 @@ int main() {
         }
     }
     cout << board.hasWon() << endl;
+    board.printBoard();
     /*  Board b(black);
       for (auto &i : b.board)
           for (int &j : i)

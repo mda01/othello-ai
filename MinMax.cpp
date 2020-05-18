@@ -2,24 +2,28 @@
 // Created by mdano on 15/05/2020.
 //
 
-#include "AI.h"
+#include "MinMax.h"
 
-AI::AI(Color color) {
-    alpha = -64;
-    beta = 64;
+MinMax::MinMax(Color color) {
+    alpha = -100000;
+    beta = 100000;
     aiColor = color;
 }
 
 
-int AI::minmaxRec(Board node, int depth, bool maximizingPlayer, bool previousPass) {
+int MinMax::minmaxRec(Board node, int depth, bool maximizingPlayer, bool previousPass) {
     if (node.isOver()) {
-        return node.score(node.getTurn());
+        int s = node.score(aiColor);
+        return s;
     }
-    if (depth == 0)
-        return node.heuristic(node.getTurn());
+    if (depth == 0) {
+        int h = node.heuristic(aiColor);
+        return h;
+    }
     vector<Board> children = node.children();
     if (children.empty() && previousPass) { // also game over ? should never end here
-        return node.score(node.getTurn());
+        int s = node.score(aiColor);
+        return s;
     } else if (children.empty()) { // handles turn passing
         auto child = node.clone();
         child.changeTurn();
@@ -47,7 +51,7 @@ int AI::minmaxRec(Board node, int depth, bool maximizingPlayer, bool previousPas
     }
 }
 
-pair<int, int> AI::minmax(Board initBoard) {
+pair<int, int> MinMax::minmax(Board initBoard) {
     int v = -10000; // -inf
     Board best;
     auto children = initBoard.children();
@@ -60,6 +64,8 @@ pair<int, int> AI::minmax(Board initBoard) {
     }
 //    cout << "best :" << endl;
 //    best.printBoard();
+    alpha = -100000;
+    beta = 100000;
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
             if (initBoard.getValue(i, j) == 0 && best.getValue(i, j) != 0) {
