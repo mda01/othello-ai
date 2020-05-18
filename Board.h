@@ -13,6 +13,13 @@ enum Color {
     white = 1, black = 2, undefined = -1
 };
 
+struct Coordinate {
+    int x;
+    int y;
+};
+
+class Node;
+
 class Board {
 
 private:
@@ -60,7 +67,7 @@ public:
 
     vector<std::tuple<int, int, vector<int>>> nextMoves();
 
-    vector<Board> children();
+    vector<Node> children();
 
     void printBoard() const;
 
@@ -69,5 +76,10 @@ public:
 
 };
 
+
+struct Node {
+    Board board;
+    Coordinate coordinate{};
+};
 
 #endif //OTHELLO_BOARD_H

@@ -1,80 +1,60 @@
-//
-// Created by mdano on 15/05/2020.
-//
-
 #include "MinMax.h"
 
 MinMax::MinMax(Color color) {
-    alpha = -100000;
-    beta = 100000;
     aiColor = color;
 }
 
-
-int MinMax::minmaxRec(Board node, int depth, bool maximizingPlayer, bool previousPass) {
-    if (node.isOver()) {
-        int s = node.score(aiColor);
-        return s;
-    }
-    if (depth == 0) {
-        int h = node.heuristic(aiColor);
-        return h;
-    }
-    vector<Board> children = node.children();
-    if (children.empty() && previousPass) { // also game over ? should never end here
-        int s = node.score(aiColor);
-        return s;
-    } else if (children.empty()) { // handles turn passing
-        auto child = node.clone();
-        child.changeTurn();
-        return minmaxRec(child, depth - 1, !maximizingPlayer, true);
-    } else {
-        if (maximizingPlayer) {
-            int v = -10000; // -inf
-            for (Board child : children) {
-                v = max(v, minmaxRec(child, depth - 1, false, false));
-                if (v > beta)
-                    return v;
-                alpha = max(alpha, v);
-            }
-            return v;
-        } else {
-            int v = 10000; // +inf
-            for (Board child : children) {
-                v = min(v, minmaxRec(child, depth - 1, true, false));
-                if (v < alpha)
-                    return v;
-                beta = min(beta, v);
-            }
-            return v;
-        }
-    }
+int MinMax::alpha_beta(Board state, vector<Coordinate> &actions) {
+    return max_value(state, INT32_MIN, INT32_MAX, actions, MAX_DEPTH);
 }
 
-pair<int, int> MinMax::minmax(Board initBoard) {
-    int v = -10000; // -inf
-    Board best;
-    auto children = initBoard.children();
-    for (Board child : children) {
-        int minmax = minmaxRec(child, MAX_DEPTH - 1, false, false);
-        if (minmax > v) {
-            v = minmax;
-            best = child.clone();
-        }
+int MinMax::max_value(Board state, int alpha, int beta, vector<Coordinate> &actions, int depth) const {
+    if (state.isOver()) return state.score(aiColor);
+    if (depth == 0) return state.heuristic(aiColor);
+    auto children = state.children();
+    if (children.empty()) { // can't play (specific to othello)
+        Board newState = state.clone();
+        newState.changeTurn();
+        return min_value(newState, alpha, beta, actions, depth - 1);
     }
-//    cout << "best :" << endl;
-//    best.printBoard();
-    alpha = -100000;
-    beta = 100000;
-    for (int i = 0; i < SIZE; i++) {
-        for (int j = 0; j < SIZE; j++) {
-            if (initBoard.getValue(i, j) == 0 && best.getValue(i, j) != 0) {
-                cout << "estimation: " << v << endl;
-                cout << "move: " << i << " " << j << endl;
-                return make_pair(i, j);
-            }
+    int v = INT32_MIN;
+    for (Node s : children) {
+        vector<Coordinate> tmp;
+        int v2 = min_value(s.board, alpha, beta, tmp, depth - 1);
+        if (v2 > v) {
+            v = v2;
+            actions = tmp;
+            actions.insert(actions.begin(), s.coordinate);
         }
+        if (v >= beta) return v;
+        alpha = max(alpha, v);
     }
-    exit(666);
+    return v;
 }
+
+int MinMax::min_value(Board state, int alpha, int beta, vector<Coordinate> &actions, int depth) const {
+    if (state.isOver()) return state.score(aiColor);
+    if (depth == 0) return state.heuristic(aiColor);
+    auto children = state.children();
+    if (children.empty()) { // can't play (specific to othello)
+        Board newState = state.clone();
+        newState.changeTurn();
+        return max_value(newState, alpha, beta, actions, depth - 1);
+    }
+    int v = INT32_MAX;
+    for (Node s : children) {
+        vector<Coordinate> tmp;
+        int v2 = max_value(s.board, alpha, beta, tmp, depth - 1);
+        if (v2 < v) {
+            v = v2;
+            actions = tmp;
+            actions.insert(actions.begin(), s.coordinate);
+        }
+        if (v <= alpha) return v;
+        beta = min(beta, v);
+    }
+    return v;
+}
+
+
 

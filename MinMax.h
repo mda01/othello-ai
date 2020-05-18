@@ -6,17 +6,20 @@
 
 #define MAX_DEPTH 10
 
+
 class MinMax {
 private:
-    int alpha, beta;
     Color aiColor;
 
 public:
     explicit MinMax(Color color);
 
-    pair<int, int> minmax(Board initBoard);
+    int alpha_beta(Board state, vector<Coordinate> &actions);
 
-    int minmaxRec(Board node, int depth, bool maximizingPlayer, bool previousPass);
+    int max_value(Board state, int alpha, int beta, vector<Coordinate> &actions, int depth) const;
+
+    int min_value(Board state, int alpha, int beta, vector<Coordinate> &actions, int depth) const;
+
 };
 
 

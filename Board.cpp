@@ -247,13 +247,14 @@ vector<int> Board::possiblePlace(const int &x, const int &y, Color color) {
     return res;
 }
 
-vector<Board> Board::children() {
-    vector<Board> res;
+vector<Node> Board::children() {
+    vector<Node> res;
     auto moves = nextMoves();
     for (std::tuple<int, int, vector<int>> move : moves) {
         Board child = clone();
-        child.playOneMove(get<0>(move), get<1>(move), get<2>(move));
-        res.push_back(child);
+        Coordinate c{get<0>(move), get<1>(move)};
+        child.playOneMove(c.x, c.y, get<2>(move));
+        res.push_back(Node{child, c});
     }
     return res;
 }
