@@ -41,37 +41,37 @@ public:
 
     Board();
 
-    void playOneMove(const int &x, const int &y);
+    void initBoard();
 
-    void playOneMove(const int &x, const int &y, const vector<int> &dirs);
+    void playOneMove(const Coordinate &c);
+
+    void playOneMove(const Coordinate &c, const vector<int> &dirs);
 
     void askMove();
 
     void changeTurn();
 
-    bool isOver();
+    bool isOver() const;
 
-    int heuristic(Color color);
+    int heuristic(Color color) const;
 
-    int score(Color color);
+    int score(Color color) const;
 
-    bool hasWon();
+    bool hasWon() const;
 
     Color getPlayer() const;
 
     Color getTurn() const;
 
-    int getValue(const int &x, const int &y) const;
+    vector<int> possiblePlace(const Coordinate &c, Color color) const;
 
-    vector<int> possiblePlace(const int &x, const int &y, Color color);
+    vector<std::pair<Coordinate, vector<int>>> nextMoves() const;
 
-    vector<std::tuple<int, int, vector<int>>> nextMoves();
-
-    vector<Node> children();
+    vector<Node> children() const;
 
     void printBoard() const;
 
-    Board clone();
+    Board clone() const;
 
 
 };

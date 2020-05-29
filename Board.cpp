@@ -3,49 +3,47 @@
 Board::Board() {
     player = black;
     turn = black;
-    for (auto &i : board)
-        for (int &j : i)
-            j = 0;
-    playOneMove(3, 4, vector<int>());
-    playOneMove(4, 4, vector<int>());
-    playOneMove(4, 3, vector<int>());
-    playOneMove(3, 3, vector<int>());
+    initBoard();
 }
 
 Board::Board(Color playerColor) {
     player = playerColor;
     turn = black;
+    initBoard();
+}
+
+void Board::initBoard() {
     for (auto &i : board)
         for (int &j : i)
             j = 0;
-    playOneMove(3, 4, vector<int>());
-    playOneMove(4, 4, vector<int>());
-    playOneMove(4, 3, vector<int>());
-    playOneMove(3, 3, vector<int>());
+    playOneMove({3, 4}, vector<int>());
+    playOneMove({4, 4}, vector<int>());
+    playOneMove({4, 3}, vector<int>());
+    playOneMove({3, 3}, vector<int>());
 }
 
-void Board::playOneMove(const int &x, const int &y) {
-    const vector<int> &a = possiblePlace(x, y, turn);
+void Board::playOneMove(const Coordinate &c) {
+    const vector<int> &a = possiblePlace(c, turn);
     if (!a.empty())
-        playOneMove(x, y, a);
+        playOneMove(c, a);
     else
-        cout << "Incorrect position: " << x << " " << y << endl;
+        cout << "Incorrect position: " << c.x << " " << c.y << endl;
 }
 
-void Board::playOneMove(const int &x, const int &y, const vector<int> &dirs) {
+void Board::playOneMove(const Coordinate &c, const vector<int> &dirs) {
     for (int dir : dirs) {
-        auto coord = make_pair(x, y);
+        auto coord = Coordinate{c.x, c.y};
         for (int i = 0; i < SIZE; i++) {
             switch (dir) {
                 case 1:
                 case 2:
                 case 3:
-                    coord.second--;
+                    coord.y--;
                     break;
                 case 5:
                 case 6:
                 case 7:
-                    coord.second++;
+                    coord.y++;
                     break;
                 default:
                     break;
@@ -54,31 +52,31 @@ void Board::playOneMove(const int &x, const int &y, const vector<int> &dirs) {
                 case 1:
                 case 8:
                 case 7:
-                    coord.first--;
+                    coord.x--;
                     break;
                 case 3:
                 case 4:
                 case 5:
-                    coord.first++;
+                    coord.x++;
                     break;
                 default:
                     break;
             }
-            if (board[coord.first][coord.second] == 0) {
+            if (board[coord.x][coord.y] == 0) {
                 cout << "incorrect piece was allowed but filling is somehow incorrect" << endl;
                 exit(789);
             }
-            if (board[coord.first][coord.second] != turn)
-                board[coord.first][coord.second] = turn;
+            if (board[coord.x][coord.y] != turn)
+                board[coord.x][coord.y] = turn;
             else
                 break;
         }
     }
     if (turn == white) {
-        board[x][y] = white;
+        board[c.x][c.y] = white;
         turn = black;
     } else {
-        board[x][y] = black;
+        board[c.x][c.y] = black;
         turn = white;
     }
 }
@@ -87,30 +85,32 @@ void Board::askMove() {
     int x = 0;
     int y = 0;
     cin >> x >> y;
-    playOneMove(x, y);
+    playOneMove(Coordinate{x, y});
 }
 
 void Board::changeTurn() {
     if (turn == white) turn = black; else turn = white;
 }
 
-bool Board::isOver() {
+bool Board::isOver() const {
     Color other;
     other = turn == white ? black : white;
     for (int i = 0; i < SIZE; i++)
-        for (int j = 0; j < SIZE; j++)
-            if (!possiblePlace(i, j, turn).empty() or !(possiblePlace(i, j, other).empty()))
+        for (int j = 0; j < SIZE; j++) {
+            Coordinate c = {i, j};
+            if (!possiblePlace(c, turn).empty() or !(possiblePlace(c, other).empty()))
                 return false;
+        }
     return true;
 }
 
-std::vector<std::tuple<int, int, vector<int>>> Board::nextMoves() {
-    auto res = vector<std::tuple<int, int, vector<int>>>();
+std::vector<std::pair<Coordinate, vector<int>>> Board::nextMoves() const {
+    auto res = vector<std::pair<Coordinate, vector<int>>>();
     for (int i = 0; i < SIZE; i++) {
         for (int j = 0; j < SIZE; j++) {
-            vector<int> nb = possiblePlace(i, j, turn);
+            vector<int> nb = possiblePlace({i, j}, turn);
             if (!nb.empty()) {
-                tuple<int, int, vector<int>> a = make_tuple(i, j, nb);
+                pair<Coordinate, vector<int>> a = make_pair(Coordinate{i, j}, nb);
                 res.push_back(a);
             }
         }
@@ -118,7 +118,7 @@ std::vector<std::tuple<int, int, vector<int>>> Board::nextMoves() {
     return res;
 }
 
-int Board::heuristic(Color color) {
+int Board::heuristic(const Color color) const {
     int h = 0;
     Color other;
     if (color == white)
@@ -137,7 +137,7 @@ int Board::heuristic(Color color) {
     return h;
 }
 
-int Board::score(Color color) {
+int Board::score(const Color color) const {
     int score = 0;
     Color other;
     if (color == white)
@@ -150,10 +150,10 @@ int Board::score(Color color) {
                 score++;
             else if (cell == other)
                 score--;
-    return score * 100;
+    return score * 5;
 }
 
-bool Board::hasWon() {
+bool Board::hasWon() const {
     return score(player) > 0;
 }
 
@@ -165,12 +165,9 @@ Color Board::getTurn() const {
     return turn;
 }
 
-int Board::getValue(const int &x, const int &y) const {
-    return board[x][y];
-}
-
-vector<int> Board::possiblePlace(const int &x, const int &y, Color color) {
+vector<int> Board::possiblePlace(const Coordinate &c, Color color) const {
     vector<int> res = vector<int>();
+    const int x = c.x, y = c.y;
     if (x < 0 || y < 0 || x >= SIZE || y >= SIZE || board[x][y] != 0)
         return res;
     Color other;
@@ -247,14 +244,13 @@ vector<int> Board::possiblePlace(const int &x, const int &y, Color color) {
     return res;
 }
 
-vector<Node> Board::children() {
+vector<Node> Board::children() const {
     vector<Node> res;
     auto moves = nextMoves();
-    for (std::tuple<int, int, vector<int>> move : moves) {
+    for (std::pair<Coordinate, vector<int>> move : moves) {
         Board child = clone();
-        Coordinate c{get<0>(move), get<1>(move)};
-        child.playOneMove(c.x, c.y, get<2>(move));
-        res.push_back(Node{child, c});
+        child.playOneMove(move.first, move.second);
+        res.push_back(Node{child, move.first});
     }
     return res;
 }
@@ -287,7 +283,7 @@ void Board::printBoard() const {
 }
 
 
-Board Board::clone() {
+Board Board::clone() const {
     Board b(player);
     b.turn = turn;
     b.player = player;

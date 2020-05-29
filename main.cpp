@@ -18,9 +18,8 @@ int main() {
         }
     }
     Board board(playerColor);
-//    MinMax ai0 = MinMax(playerColor);
-    MinMax ai1 = MinMax(enemyColor);
-    vector<std::tuple<int, int, vector<int>>> a;
+    MinMax minMax = MinMax(enemyColor);
+    vector<std::pair<Coordinate, vector<int>>> a;
     vector<Coordinate> actions;
     while (!board.isOver()) {
         board.printBoard();
@@ -31,12 +30,12 @@ int main() {
 //                pair<int, int> move = ai0.minmax_old(board);
 //                board.playOneMove(move.first, move.second);
             } else {
-                int conf = ai1.alpha_beta(board.clone(), actions);
+                int conf = minMax.alpha_beta(board.clone(), actions);
                 cout << "move: " << actions.front().x << " " << actions.front().y << endl;
                 cout << "confidence: " << conf << endl;
                 if (actions.size() > 1)
                     cout << "expected move: " << actions[1].x << " " << actions[1].y << endl;
-                board.playOneMove(actions.front().x, actions.front().y);
+                board.playOneMove(actions.front());
             }
         } else {
             cout << "passed" << endl;
@@ -45,12 +44,5 @@ int main() {
     }
     cout << board.hasWon() << endl;
     board.printBoard();
-    /*  Board board(black);
-      for (auto &i : board.board)
-          for (int &j : i)
-              j = 0;
-      board.board[0][0] = 1;
-      board.printBoard();
-      cout << "heur: " << board.heuristic(black) << endl;*/
     return 0;
 }
