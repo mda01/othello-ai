@@ -14,7 +14,7 @@ private:
 public:
     explicit MinMax(Color color);
 
-    int alpha_beta(Board state, vector<Coordinate> &actions);
+    int alpha_beta(Board state, vector<Coordinate> &actions) const;
 
     int max_value(Board state, int alpha, int beta, vector<Coordinate> &actions, int depth) const;
 

@@ -4,7 +4,7 @@ MinMax::MinMax(Color color) {
     aiColor = color;
 }
 
-int MinMax::alpha_beta(Board state, vector<Coordinate> &actions) {
+int MinMax::alpha_beta(Board state, vector<Coordinate> &actions) const {
     return max_value(state, INT32_MIN, INT32_MAX, actions, MAX_DEPTH);
 }
 

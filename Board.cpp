@@ -247,7 +247,7 @@ vector<int> Board::possiblePlace(const Coordinate &c, Color color) const {
 vector<Node> Board::children() const {
     vector<Node> res;
     auto moves = nextMoves();
-    for (std::pair<Coordinate, vector<int>> move : moves) {
+    for (const std::pair<Coordinate, vector<int>> &move : moves) {
         Board child = clone();
         child.playOneMove(move.first, move.second);
         res.push_back(Node{child, move.first});
