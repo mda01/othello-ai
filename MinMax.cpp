@@ -5,6 +5,7 @@ MinMax::MinMax(Color color) {
 }
 
 int MinMax::alpha_beta(Board state, vector<Coordinate> &actions) const {
+    actions.clear();
     return max_value(state, INT32_MIN, INT32_MAX, actions, MAX_DEPTH);
 }
 
